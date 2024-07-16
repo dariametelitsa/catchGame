@@ -45,7 +45,6 @@ describe('Game test', () => {
       expect([1,2,3,4]).toContain(game.player2.position.x);
       expect([1,2,3]).toContain(game.player2.position.y);
 
-
       expect(
         (game.player1.position.x !== game.player2.position.x ||
             game.player1.position.y !== game.player2.position.y) &&

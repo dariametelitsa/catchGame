@@ -49,15 +49,15 @@ export class Game {
   }
 
   get player1(){
-    return this.#player1
+    return this.#player1;
   }
 
   get player2(){
-    return this.#player2
+    return this.#player2;
   }
 
   get google(){
-    return this.#google
+    return this.#google;
   }
 
   start() {
