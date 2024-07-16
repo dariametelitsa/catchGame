@@ -14,8 +14,8 @@ export class Game {
     let newX;
     let newY;
     do {
-      newX = NumberUtil.getRandomNumber(this.settings.gridSize.rows);
-      newY = NumberUtil.getRandomNumber(this.settings.gridSize.columns);
+      newX = NumberUtil.getRandomNumber(this.#settings.gridSize.columns);
+      newY = NumberUtil.getRandomNumber(this.#settings.gridSize.rows);
     } while (
       takenPosition.some(
         (position) => position.x === newX && position.y === newY
@@ -25,6 +25,17 @@ export class Game {
     return new Position(newX, newY);
   }
 
+  #createUnits(){
+    const player1Position = this.#getRandomPostion();
+    this.#player1 = new Player(1, player1Position);
+
+    const player2Position = this.#getRandomPostion([player1Position]);
+    this.#player2 = new Player(2, player2Position);
+
+    const googlePosition = this.#getRandomPostion([player1Position, player2Position]);
+    this.#google = new Google(googlePosition);
+  }
+
   get status() {
     return this.#status;
   }
@@ -32,34 +43,51 @@ export class Game {
   set settings(settings) {
     this.#settings = settings;
   }
+
   get settings() {
     return this.#settings;
+  }
+
+  get player1(){
+    return this.#player1
+  }
+
+  get player2(){
+    return this.#player2
+  }
+
+  get google(){
+    return this.#google
   }
 
   start() {
     if (this.#status === "pending") {
       this.#status = "inProcess";
     }
-    const player1Position = this.#getRandomPostion();
-    this.#player1 = new Player(1, player1Position);
-    this.#player2 = new Player(2, this.#getRandomPostion([player1Position.x, player1Position.y]));
+    this.#createUnits();
   }
 
-  pause() {}
+  pause() {};
 
-  resume() {}
+  resume() {};
 }
 
-export class Player {
-  constructor(id, position) {
-    this.id = id;
-    this.position = position;
-  }
-}
 
-export class Google {
+export class Units {
   constructor(position) {
     this.position = position;
+  }
+}
+export class Player extends Units {
+  constructor(id, position) {
+    super(position);
+    this.id = id;
+  }
+}
+
+export class Google extends Units {
+  constructor(position) {
+    super(position);
   }
 }
 
