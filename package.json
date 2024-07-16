@@ -1,0 +1,18 @@
+{
+  "name": "game",
+  "version": "1",
+  "description": "vanilla game",
+  "main": "index.js",
+  "author": "Daria Metelitsa",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/preset-env": "^7.24.8",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0"
+  },
+  "jest": {
+  "transform": {
+    "^.+\\.[t|j]sx?$": "babel-jest"
+  }
+}
+}
