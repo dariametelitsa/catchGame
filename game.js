@@ -4,13 +4,13 @@ export class Game {
       columns: 4,
       rows: 4,
     },
-    googleJumpInterval: 2000,
+    MacGuffinJumpInterval: 2000,
   };
   #status = "pending";
   #player1;
   #player2;
-  #google;
-  #googleJumpIntervalId;
+  #MacGuffin;
+  #MacGuffinJumpIntervalId;
 
   #getRandomPostion(takenPosition = []) {
     let newX;
@@ -27,11 +27,11 @@ export class Game {
     return new Position(newX, newY);
   }
 
-  #moveGoogleToRandomPosition(isStartPosition){
-    const googlePosition = isStartPosition ? 
+  #moveMacGuffinToRandomPosition(isStartPosition){
+    const MacGuffinPosition = isStartPosition ? 
     this.#getRandomPostion([this.player1.position, this.player2.position])
-    : this.#getRandomPostion([this.player1.position, this.player2.position, this.#google.position]);
-    this.#google = new Google(googlePosition);
+    : this.#getRandomPostion([this.player1.position, this.player2.position, this.#MacGuffin.position]);
+    this.#MacGuffin = new MacGuffin(MacGuffinPosition);
   }
 
   #createUnits(){
@@ -41,7 +41,7 @@ export class Game {
     const player2Position = this.#getRandomPostion([player1Position]);
     this.#player2 = new Player(2, player2Position);
 
-    this.#moveGoogleToRandomPosition(true);
+    this.#moveMacGuffinToRandomPosition(true);
   }
 
   get status() {
@@ -64,8 +64,8 @@ export class Game {
     return this.#player2;
   }
 
-  get google(){
-    return this.#google;
+  get MacGuffin(){
+    return this.#MacGuffin;
   }
 
   start() {
@@ -73,14 +73,14 @@ export class Game {
       this.#status = "inProcess";
     }
     this.#createUnits();
-    this.#googleJumpIntervalId = setInterval(() => {
-      this.#moveGoogleToRandomPosition(false);
-    }, this.#settings.googleJumpInterval);
+    this.#MacGuffinJumpIntervalId = setInterval(() => {
+      this.#moveMacGuffinToRandomPosition(false);
+    }, this.#settings.MacGuffinJumpInterval);
   }
 
   stop(){
     this.#status = 'finished';
-    clearInterval(this.#googleJumpIntervalId);
+    clearInterval(this.#MacGuffinJumpIntervalId);
   }
 
   #isBorder(movingPlayer, step) {
@@ -94,18 +94,31 @@ export class Game {
       return prevPlayerPosition.y < 1 || prevPlayerPosition.y > this.#settings.gridSize.rows;
     }
   };
-  #isOtherPlayer(){};
+
+  #isOtherPlayer(movingPlayer, otherPlayer, step){
+    const prevPlayerPosition = movingPlayer.position.copy();
+    if(step.x) {
+      prevPlayerPosition += step.x;
+    }
+    if(step.y) {
+      prevPlayerPosition += step.y;
+    }
+    return Position.equals(prevPlayerPosition, otherPlayer.position);
+  };
+
+  #checkMacGuffinCatching() {
+
+  }
 
   movePlayer1Right() {
     const step = {x: 1};
     if(this.#isBorder(this.#player1, step)) {
       return;
     }
-    if(this.#isOtherPlayer()) {
+    if(this.#isOtherPlayer(this.#player1, this.#player2, step)) {
       return;
     }
-
-    //checkGoogleCatching
+    //checkMacGuffinCatching
   };
   movePlayer1Left() {
     const step = {x: -1};
@@ -148,7 +161,7 @@ export class Player extends Units {
   }
 }
 
-export class Google extends Units {
+export class MacGuffin extends Units {
   constructor(position) {
     super(position);
   }

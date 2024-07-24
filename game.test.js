@@ -32,7 +32,6 @@ afterEach(() => {
     expect(game.status).toBe('pending');
     game.start();
     expect(game.status).toBe('inProcess');
-    //game.stop();
   });
 
   it('should units have unique position', () => {
@@ -57,16 +56,16 @@ afterEach(() => {
       expect(
         (game.player1.position.x !== game.player2.position.x ||
             game.player1.position.y !== game.player2.position.y) &&
-        (game.player1.position.x !== game.google.position.x ||
-            game.player1.position.y !== game.google.position.y) &&
-        (game.player2.position.x !== game.google.position.x ||
-            game.player2.position.y !== game.google.position.y)
+        (game.player1.position.x !== game.MacGuffin.position.x ||
+            game.player1.position.y !== game.MacGuffin.position.y) &&
+        (game.player2.position.x !== game.MacGuffin.position.x ||
+            game.player2.position.y !== game.MacGuffin.position.y)
     ).toBe(true);
     game.stop();
     }
   });
 
-  it('should google change position', async() => {
+  it('should MacGuffin change position', async() => {
     for(let i = 0; i< 10; i++) {
       game = new Game();
       game.settings = {
@@ -74,14 +73,14 @@ afterEach(() => {
           columns: 4,
           rows: 1,
         },
-        googleJumpInterval: 100,
+        MacGuffinJumpInterval: 100,
       }
 
       game.start();
-      const prevPosition = game.google.position.returnCopy();
+      const prevPosition = game.MacGuffin.position.returnCopy();
       await sleep(150);
 
-      expect(Position.equals(prevPosition, game.google.position)).toBe(false);
+      expect(Position.equals(prevPosition, game.MacGuffin.position)).toBe(false);
       game.stop();
     }
   })
