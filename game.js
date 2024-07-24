@@ -11,6 +11,10 @@ export class Game {
   #player2;
   #MacGuffin;
   #MacGuffinJumpIntervalId;
+  #score = {
+    1: {points: 0},
+    2: {points: 0},
+  }
 
   #getRandomPostion(takenPosition = []) {
     let newX;
@@ -106,41 +110,60 @@ export class Game {
     return Position.equals(prevPlayerPosition, otherPlayer.position);
   };
 
-  #checkMacGuffinCatching() {
+  #checkMacGuffinCatching(movingPlayer) {
+    if(Position.equals(movingPlayer.position, this.#MacGuffin.position)) {
+      this.#score[movingPlayer.id].points++;
+    }
+    this.#moveMacGuffinToRandomPosition(false);
+  }
 
+  #movePlayer(movingPlayer, otherPlayer, step) {
+    const isBorder = this.#isBorder(movingPlayer, step);
+    const isOtherPlayer = this.#isOtherPlayer(movingPlayer, otherPlayer, step)
+    if(isBorder || isOtherPlayer) {
+      return;
+    }
+    if(step.x) {
+      movingPlayer.position.x += step.x;
+    }
+    if(step.y) {
+      movingPlayer.position.y += step.y;
+    }
+    this.#checkMacGuffinCatching(movingPlayer);
   }
 
   movePlayer1Right() {
     const step = {x: 1};
-    if(this.#isBorder(this.#player1, step)) {
-      return;
-    }
-    if(this.#isOtherPlayer(this.#player1, this.#player2, step)) {
-      return;
-    }
-    //checkMacGuffinCatching
+    this.#movePlayer(this.#player1, this.#player2, step);
   };
   movePlayer1Left() {
     const step = {x: -1};
+    this.#movePlayer(this.#player1, this.#player2, step);
   };
   movePlayer1Up() {
     const step = {y: -1};
+    this.#movePlayer(this.#player1, this.#player2, step);
   };
   movePlayer1Down() {
     const step = {y: 1};
+    this.#movePlayer(this.#player1, this.#player2, step);
   };
 
   movePlayer2Right() {
     const step = {x: 1};
+    this.#movePlayer(this.#player2, this.#player1, step);
   };
   movePlayer2Left() {
     const step = {x: -1};
+    this.#movePlayer(this.#player2, this.#player1, step);
   };
   movePlayer2Up() {
     const step = {y: -1};
+    this.#movePlayer(this.#player2, this.#player1, step);
   };
   movePlayer2Down() {
     const step = {y: 1};
+    this.#movePlayer(this.#player2, this.#player1, step);
   };
 
   pause() {};
