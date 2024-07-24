@@ -4,17 +4,18 @@ export class Game {
       columns: 4,
       rows: 4,
     },
-    MacGuffinJumpInterval: 2000,
+    macGuffinJumpInterval: 2000,
+    pointsToWin: 10,
   };
   #status = "pending";
   #player1;
   #player2;
-  #MacGuffin;
-  #MacGuffinJumpIntervalId;
+  #macGuffin;
+  #macGuffinJumpIntervalId;
   #score = {
     1: {points: 0},
     2: {points: 0},
-  }
+  };
 
   #getRandomPostion(takenPosition = []) {
     let newX;
@@ -34,8 +35,8 @@ export class Game {
   #moveMacGuffinToRandomPosition(isStartPosition){
     const MacGuffinPosition = isStartPosition ? 
     this.#getRandomPostion([this.player1.position, this.player2.position])
-    : this.#getRandomPostion([this.player1.position, this.player2.position, this.#MacGuffin.position]);
-    this.#MacGuffin = new MacGuffin(MacGuffinPosition);
+    : this.#getRandomPostion([this.player1.position, this.player2.position, this.#macGuffin.position]);
+    this.#macGuffin = new MacGuffin(MacGuffinPosition);
   }
 
   #createUnits(){
@@ -52,8 +53,17 @@ export class Game {
     return this.#status;
   }
 
+  get score() {
+    return this.#score;
+  }
+
   set settings(settings) {
-    this.#settings = settings;
+    //this.#settings = settings;
+    this.#settings = { ...this.#settings, ...settings };
+ 
+    this.#settings.gridSize = settings.gridSize
+    ? { ...this.#settings.gridSize, ...settings.gridSize }
+    : this.#settings.gridSize;
   }
 
   get settings() {
@@ -68,8 +78,8 @@ export class Game {
     return this.#player2;
   }
 
-  get MacGuffin(){
-    return this.#MacGuffin;
+  get macGuffin(){
+    return this.#macGuffin;
   }
 
   start() {
@@ -77,18 +87,18 @@ export class Game {
       this.#status = "inProcess";
     }
     this.#createUnits();
-    this.#MacGuffinJumpIntervalId = setInterval(() => {
+    this.#macGuffinJumpIntervalId = setInterval(() => {
       this.#moveMacGuffinToRandomPosition(false);
     }, this.#settings.MacGuffinJumpInterval);
   }
 
   stop(){
     this.#status = 'finished';
-    clearInterval(this.#MacGuffinJumpIntervalId);
+    clearInterval(this.#macGuffinJumpIntervalId);
   }
 
   #isBorder(movingPlayer, step) {
-    const prevPlayerPosition = movingPlayer.position.copy();
+    let prevPlayerPosition = movingPlayer.position.clone();
     if(step.x) {
       prevPlayerPosition += step.x;
       return prevPlayerPosition.x < 1 || prevPlayerPosition.x > this.#settings.gridSize.columns;
@@ -100,19 +110,23 @@ export class Game {
   };
 
   #isOtherPlayer(movingPlayer, otherPlayer, step){
-    const prevPlayerPosition = movingPlayer.position.copy();
+    let prevPlayerPosition = movingPlayer.position.clone();
     if(step.x) {
-      prevPlayerPosition += step.x;
+      prevPlayerPosition.x += step.x;
     }
     if(step.y) {
-      prevPlayerPosition += step.y;
+      prevPlayerPosition.y += step.y;
     }
     return Position.equals(prevPlayerPosition, otherPlayer.position);
   };
 
   #checkMacGuffinCatching(movingPlayer) {
-    if(Position.equals(movingPlayer.position, this.#MacGuffin.position)) {
-      this.#score[movingPlayer.id].points++;
+    if(Position.equals(movingPlayer.position, this.#macGuffin.position)) {
+      this.#score[movingPlayer.id].points += 1;
+    }
+    if(this.#score[movingPlayer.id].points === this.#settings.pointsToWin) {
+      this.stop();
+      this.#macGuffin = new MacGuffin(new Position(0, 0));
     }
     this.#moveMacGuffinToRandomPosition(false);
   }
@@ -195,11 +209,11 @@ export class Position {
     this.x = x;
     this.y = y;
   }
-  returnCopy() {
+  clone() {
     return new Position(this.x, this.y);
   }
   static equals(somePosition1, somePosition2) {
-    return somePosition1.x === somePosition2 && somePosition1.y === somePosition2.y
+    return somePosition1.x === somePosition2.x && somePosition1.y === somePosition2.y
   }
 }
 
