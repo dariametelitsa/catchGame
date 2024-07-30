@@ -8,11 +8,48 @@ game.settings.gridSize = {
   columns: 5,
 }
 const tableElement = document.getElementById("field");
+const score1 = document.getElementById('score1');
+const score2 = document.getElementById('score2');
 
 game.start();
 
+window.addEventListener('keydown', (e) => {
+  switch(e.key) {
+    case 'ArrowUp':
+      game.movePlayer1Up();
+      break;
+    case 'ArrowDown':
+      game.movePlayer1Down();
+      break;
+    case 'ArrowLeft':
+      game.movePlayer1Left();
+      break;
+    case 'ArrowRight':
+      game.movePlayer1Right();
+      break;
+    case 'w':
+      game.movePlayer2Up();
+      break;
+    case 's':
+      game.movePlayer2Down();
+      break;
+    case 'a':
+      game.movePlayer2Left();
+      break;
+    case 'd':
+      game.movePlayer2Right();
+      break;
+  }
+});
+
 const render = () => {
   tableElement.innerHTML = '';
+  score1.innerHTML = '';
+  score2.innerHTML = '';
+
+  score1.append(game.score[1].points);
+  score2.append(game.score[2].points);
+
   for (let y = 1; y <= game.settings.gridSize.rows; y++) {
     const trElement = document.createElement('tr');
     tableElement.append(trElement);

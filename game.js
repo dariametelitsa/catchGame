@@ -5,7 +5,7 @@ export class Game {
       rows: 4,
     },
     macGuffinJumpInterval: 2000,
-    pointsToWin: 10,
+    pointsToWin: 3,
   };
   #status = "pending";
   #player1;
@@ -87,14 +87,18 @@ export class Game {
     return this.#macGuffin;
   }
 
+  #startMagGuffinJumpInterval() {
+    this.#macGuffinJumpIntervalId = setInterval(() => {
+      this.#moveMacGuffinToRandomPosition(false);
+    }, this.#settings.macGuffinJumpInterval);
+  }
+
   start() {
     if (this.#status === "pending") {
       this.#status = "inProcess";
     }
     this.#createUnits();
-    this.#macGuffinJumpIntervalId = setInterval(() => {
-      this.#moveMacGuffinToRandomPosition(false);
-    }, this.#settings.macGuffinJumpInterval);
+    this.#startMagGuffinJumpInterval();
   }
 
   stop(){
@@ -104,12 +108,13 @@ export class Game {
 
   #isBorder(movingPlayer, step) {
     let prevPlayerPosition = movingPlayer.position.clone();
+    
     if(step.x) {
-      prevPlayerPosition += step.x;
+      prevPlayerPosition.x += step.x;
       return prevPlayerPosition.x < 1 || prevPlayerPosition.x > this.#settings.gridSize.columns;
     }
     if(step.y) {
-      prevPlayerPosition += step.y;
+      prevPlayerPosition.y += step.y;
       return prevPlayerPosition.y < 1 || prevPlayerPosition.y > this.#settings.gridSize.rows;
     }
   };
@@ -128,12 +133,18 @@ export class Game {
   #checkMacGuffinCatching(movingPlayer) {
     if(Position.equals(movingPlayer.position, this.#macGuffin.position)) {
       this.#score[movingPlayer.id].points += 1;
+      this.#moveMacGuffinToRandomPosition(false);
     }
     if(this.#score[movingPlayer.id].points === this.#settings.pointsToWin) {
-      this.stop();
+      //todo check-------------------------------------------------------------------------------------
       this.#macGuffin = new MacGuffin(new Position(0, 0));
+      this.stop();
+      return;
     }
-    this.#moveMacGuffinToRandomPosition(false);
+
+
+    clearInterval(this.#macGuffinJumpIntervalId);
+    this.#startMagGuffinJumpInterval();
   }
 
   #movePlayer(movingPlayer, otherPlayer, step) {
@@ -149,6 +160,8 @@ export class Game {
       movingPlayer.position.y += step.y;
     }
     this.#checkMacGuffinCatching(movingPlayer);
+
+    this.eventEmmiter.emit('changePosition');
   }
 
   movePlayer1Right() {
