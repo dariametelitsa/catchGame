@@ -16,6 +16,9 @@ export class Game {
     1: {points: 0},
     2: {points: 0},
   };
+  constructor(eventEmmiter) {
+    this.eventEmmiter = eventEmmiter;
+  }
 
   #getRandomPostion(takenPosition = []) {
     let newX;
@@ -37,6 +40,8 @@ export class Game {
     this.#getRandomPostion([this.player1.position, this.player2.position])
     : this.#getRandomPostion([this.player1.position, this.player2.position, this.#macGuffin.position]);
     this.#macGuffin = new MacGuffin(MacGuffinPosition);
+
+    this.eventEmmiter.emit('changePosition');
   }
 
   #createUnits(){
@@ -89,7 +94,7 @@ export class Game {
     this.#createUnits();
     this.#macGuffinJumpIntervalId = setInterval(() => {
       this.#moveMacGuffinToRandomPosition(false);
-    }, this.#settings.MacGuffinJumpInterval);
+    }, this.#settings.macGuffinJumpInterval);
   }
 
   stop(){
